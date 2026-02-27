@@ -27,63 +27,106 @@
         </div>
 
     </form>
+    <div class="mt-3">
+    <div class="border rounded overflow-auto" style="height: 350px;">
+        <table class="table mb-0">
+            <thead class="table-light sticky-top">
+                        <tr>
+                            <th>Asset Name</th>
+                            <th>Type</th>
+                            <th>Cost</th>
+                            <th>Assigned To</th>
+                            <th>Created At</th>
+                            <th>Repair Costs</th>
+                            {% if user.is_manager_or_admin %}
+                                <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in assets %}
+                        <tr>
+                            <td>{{ asset.name }}</td>
+                            <td>{{ asset.get_asset_type_display }}</td>
+                            <td>${{ asset.cost }}</td>
+                            <td>
+                                {% if asset.assigned_to %}
+                                    {{ asset.assigned_to.username }}
+                                {% else %}
+                                    <span class="text-danger">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ asset.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                ${{ asset.repair_total|default:"0.00" }}
+                            </td>
+                            <td>
+                                {% if user.is_manager_or_admin %}
+                                    <a href="{% url 'asset_maintain' asset.pk %}" 
+                                        class="btn btn-sm btn-primary">
+                                        🛠️ Log Repair
+                                    </a>
+                                    <a href="{% url 'asset_update' asset.pk %}" 
+                                        class="btn btn-sm btn-warning">
+                                        Edit
+                                    </a>
+                                    <a href="{% url 'asset_delete' asset.pk %}" 
+                                        class="btn btn-sm btn-danger">
+                                        Delete
+                                    </a>
+                                    <a href="{% url 'asset_history' asset.pk %}" 
+                                        class="btn btn-sm btn-danger">
+                                    History
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+      </div>
+   
 
-    <table 
-    class="table">
-        <thead>
-            <tr>
-                <th>Asset Name</th>
-                <th>Type</th>
-                <th>Cost</th>
-                <th>Assigned To</th>
-                <th>Created At</th>
-                <th>Repair Costs</th>
-                {% if user.is_manager_or_admin %}
-                    <th>Actions</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for asset in assets %}
-            <tr>
-                <td>{{ asset.name }}</td>
-                <td>{{ asset.get_asset_type_display }}</td>
-                <td>${{ asset.cost }}</td>
-                <td>
-                    {% if asset.assigned_to %}
-                        {{ asset.assigned_to.username }}
-                    {% else %}
-                        <span style="color:red">Unassigned</span>
-                    {% endif %}
-                </td>
-                <td>{{ asset.created_at|date:"M d, Y" }}</td>
-                <td>
-                    ${{ asset.repair_total|default:"0.00" }}
-                </td>
-                <td>
-                    {% if user.is_manager_or_admin %}
-                        <a href="{% url 'asset_maintain' asset.pk %}" 
-                            class="btn btn-sm btn-primary">
-                            🛠️ Log Repair
-                        </a>
-                        <a href="{% url 'asset_update' asset.pk %}" 
-                            class="btn btn-sm btn-warning">
-                            Edit
-                        </a>
-                        <a href="{% url 'asset_delete' asset.pk %}" 
-                            class="btn btn-sm btn-danger">
-                            Delete
-                        </a>
-                        <a href="{% url 'asset_history' asset.pk %}" 
-                            class="btn btn-sm btn-danger">
-                        History
-                        </a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="d-flex justify-content-center mt-4">
+
+    
+    {% if page_obj.has_previous %}
+        <a class="btn btn-outline-success mx-1"
+           href="?{{ query_string }}&page={{ page_obj.previous_page_number }}">
+            Previous
+        </a>
+    {% else %}
+        <span class="btn btn-outline-success disabled mx-1">Previous</span>
+    {% endif %}
+
+    
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a class="btn btn-success mx-1"
+               href="?{{ query_string }}&page={{ num }}">
+                {{ num }}
+            </a>
+        {% else %}
+            <a class="btn btn-outline-success mx-1"
+               href="?{{ query_string }}&page={{ num }}">
+                {{ num }}
+            </a>
+        {% endif %}
+    {% endfor %}
+
+    
+    {% if page_obj.has_next %}
+        <a class="btn btn-outline-success mx-1"
+           href="?{{ query_string }}&page={{ page_obj.next_page_number }}">
+            Next
+        </a>
+    {% else %}
+        <span class="btn btn-outline-success disabled mx-1">Next</span>
+    {% endif %}
+
+</div>
+
 
 
 {% endblock %}
