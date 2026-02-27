@@ -1,0 +1,89 @@
+{% extends "assets/base.html" %}
+
+{% block content %}
+    <h1 class="mb-4">Corporate Assets</h1>
+
+    <form method="GET" class="row g-3 mb-4">
+        <div class="col-auto">
+            <input type="text" name="search" class="form-control" placeholder="Search name or user"
+            value="{{request.GET.search}}">
+        </div>
+
+        <div class="col-auto">
+            <select name="asset_type" class="form-select">
+                <option value="">All Types</option>
+
+                {% for code, display in asset_types %}
+                    <option value="{{code}}" {% if request.GET.asset_type == code %}selected{% endif %}> {{display}}</option>
+                    
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+            <a href="{% url "asset-list" %}" class="btn btn-secondary">Clear</a>
+        </div>
+
+    </form>
+
+    <table 
+    class="table">
+        <thead>
+            <tr>
+                <th>Asset Name</th>
+                <th>Type</th>
+                <th>Cost</th>
+                <th>Assigned To</th>
+                <th>Created At</th>
+                <th>Repair Costs</th>
+                {% if user.is_manager_or_admin %}
+                    <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for asset in assets %}
+            <tr>
+                <td>{{ asset.name }}</td>
+                <td>{{ asset.get_asset_type_display }}</td>
+                <td>${{ asset.cost }}</td>
+                <td>
+                    {% if asset.assigned_to %}
+                        {{ asset.assigned_to.username }}
+                    {% else %}
+                        <span style="color:red">Unassigned</span>
+                    {% endif %}
+                </td>
+                <td>{{ asset.created_at|date:"M d, Y" }}</td>
+                <td>
+                    ${{ asset.repair_total|default:"0.00" }}
+                </td>
+                <td>
+                    {% if user.is_manager_or_admin %}
+                        <a href="{% url 'asset_maintain' asset.pk %}" 
+                            class="btn btn-sm btn-primary">
+                            🛠️ Log Repair
+                        </a>
+                        <a href="{% url 'asset_update' asset.pk %}" 
+                            class="btn btn-sm btn-warning">
+                            Edit
+                        </a>
+                        <a href="{% url 'asset_delete' asset.pk %}" 
+                            class="btn btn-sm btn-danger">
+                            Delete
+                        </a>
+                        <a href="{% url 'asset_history' asset.pk %}" 
+                            class="btn btn-sm btn-danger">
+                        History
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}
