@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import DashboardView, AssetListView, AssetCreateView, SignUpView, MaintenanceCreateView,AssetUpdateView, AssetDeleteView, AssetHistoryView, AssetRevertView, AssetMaintenanceView
+from .views import DashboardView, AssetListView, AssetCreateView, SignUpView, MaintenanceCreateView,AssetUpdateView, AssetDeleteView, AssetHistoryView, AssetRevertView, AssetMaintenanceView, export_assets_csv
 
 urlpatterns = [
     path('', DashboardView.as_view(), name='dashboard'),
@@ -11,5 +11,7 @@ urlpatterns = [
     path('asset/<int:pk>/logs', AssetMaintenanceView.as_view(), name='asset_maintenance_logs'),
     path('asset/<int:pk>/maintain', MaintenanceCreateView.as_view(), name='asset_maintain'),
     path('<int:pk>/history/', AssetHistoryView.as_view(), name = 'asset_history'),
-    path('<int:pk>/history/<int:history_id>/revert', AssetRevertView.as_view(), name='asset_revert')
+    path('<int:pk>/history/<int:history_id>/revert', AssetRevertView.as_view(), name='asset_revert'),
+    path('export-assets-csv/', export_assets_csv, name='export_assets_csv'),
+
 ]

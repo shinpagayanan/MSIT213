@@ -1,3 +1,5 @@
+import csv
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
@@ -11,6 +13,25 @@ from assets.models import Asset, Department, User, MaintenanceLog
 from assets.mixins import ManagerOrAdminRequiredMixin
 from assets.forms import CustomCreationForm
 
+def export_assets_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="asset_report.csv"'
+
+    writer = csv.writer(response)
+
+    writer.writerow(['Asset Name', 'Type', 'Cost', 'Assigned User'])
+
+    assets = Asset.objects.select_related('assigned_to').all()
+
+    for asset in assets:
+        writer.writerow([
+            asset.name,
+            asset.get_asset_type_display(),
+            asset.cost,
+            asset.assigned_to.username if asset.assigned_to else ''
+        ])
+
+    return response
 
 class DashboardView(LoginRequiredMixin,TemplateView):
     template_name = "assets/dashboard.html"
