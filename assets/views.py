@@ -12,8 +12,6 @@ from assets.mixins import ManagerOrAdminRequiredMixin
 from assets.forms import CustomCreationForm
 
 
-
-
 class DashboardView(LoginRequiredMixin,TemplateView):
     template_name = "assets/dashboard.html"
 
@@ -37,6 +35,7 @@ class AssetListView(LoginRequiredMixin, ListView):
     model = Asset
     template_name = "assets/asset_list.html"
     context_object_name = "assets"
+    paginate_by = 5
 
     def get_queryset(self):
         querySet = Asset.objects.select_related('assigned_to').all().annotate(repair_total=Sum('maintenance_logs__cost'))
@@ -56,7 +55,10 @@ class AssetListView(LoginRequiredMixin, ListView):
         return querySet
     
     def get_context_data(self, **kwargs):
-        context =  super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        params = self.request.GET.copy()
+        params.pop('page', None)
+        context['query_string'] = params.urlencode()
         context['asset_types'] = Asset.ASSET_TYPES
         return context
     
