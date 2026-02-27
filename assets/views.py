@@ -60,22 +60,23 @@ class AssetListView(LoginRequiredMixin, ListView):
         params.pop('page', None)
         context['query_string'] = params.urlencode()
         context['asset_types'] = Asset.ASSET_TYPES
-        return context
-    
-    
-    
+        return context   
+       
 class MaintenanceCreateView(CreateView):
     model = MaintenanceLog
     template_name = "assets/maintenance_form.html"
     fields = ['description', 'cost', 'date_repaired']
-    success_url = reverse_lazy('asset-list')
 
     def form_valid(self, form):
         asset = Asset.objects.get(pk=self.kwargs['pk'])
         form.instance.asset = asset
-        
         return super().form_valid(form)
 
+    def get_success_url(self):
+        return reverse_lazy(
+            'asset_maintenance_logs',
+            kwargs={'pk': self.kwargs['pk']}
+        )
     
 class AssetCreateView(ManagerOrAdminRequiredMixin,CreateView):
     model = Asset
@@ -103,6 +104,19 @@ class AssetDeleteView(ManagerOrAdminRequiredMixin, DeleteView):
     model = Asset
     template_name = "assets/asset_confirm_delete.html"
     success_url = reverse_lazy('asset-list')
+
+class AssetMaintenanceView(ManagerOrAdminRequiredMixin, ListView):
+     template_name = "assets/asset_maintenance_logs.html"
+     context_object_name = "maintenance_records"
+
+     def get_queryset(self):
+         asset  = get_object_or_404(Asset, pk=self.kwargs['pk'])
+         return asset.maintenance_logs.all()
+     
+     def get_context_data(self, **kwargs):
+         context = super().get_context_data(**kwargs)
+         context['asset'] = get_object_or_404(Asset, pk=self.kwargs['pk'])
+         return context
 
 class AssetHistoryView(ManagerOrAdminRequiredMixin, ListView):
      template_name = "assets/asset_history.html"
