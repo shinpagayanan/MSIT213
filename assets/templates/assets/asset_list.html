@@ -3,30 +3,48 @@
 {% block content %}
     <h1 class="mb-4">Corporate Assets</h1>
 
-    <form method="GET" class="row g-3 mb-4">
-        <div class="col-auto">
-            <input type="text" name="search" class="form-control" placeholder="Search name or user"
-            value="{{request.GET.search}}">
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-        <div class="col-auto">
-            <select name="asset_type" class="form-select">
-                <option value="">All Types</option>
+    <!-- Left Side: Search Filter -->
+    <form method="GET" class="d-flex gap-2 align-items-center">
 
-                {% for code, display in asset_types %}
-                    <option value="{{code}}" {% if request.GET.asset_type == code %}selected{% endif %}> {{display}}</option>
-                    
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">
-                Search
-            </button>
-            <a href="{% url "asset-list" %}" class="btn btn-secondary">Clear</a>
-        </div>
+        <input type="text" name="search" class="form-control"
+               placeholder="Search name or user"
+               value="{{ request.GET.search }}">
+
+        <select name="asset_type" class="form-select">
+            <option value="">All Types</option>
+
+            {% for code, display in asset_types %}
+                <option value="{{ code }}"
+                    {% if request.GET.asset_type == code %}selected{% endif %}>
+                    {{ display }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-primary">
+            Search
+        </button>
+
+        <a href="{% url 'asset-list' %}" class="btn btn-secondary">
+            Clear
+        </a>
 
     </form>
+
+    <!-- Right Side Buttons -->
+    <div class="d-flex gap-2">
+        <a href="{% url 'asset-create' %}" class="btn btn-success">
+            Create
+        </a>
+
+        <a href="{% url 'export_assets_csv' %}" class="btn btn-outline-success">
+            Print CSV
+        </a>
+    </div>
+
+</div>
     <div class="mt-3">
     <div class="border rounded overflow-auto" style="height: 350px;">
         <table class="table mb-0">
